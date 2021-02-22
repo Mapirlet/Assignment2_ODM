@@ -15,23 +15,34 @@ from keras.layers import Dense
 from section1 import createInstanceDomain
 
 
-def Fitted_Q_iteration(set_tuples,model,criteria):
+def Fitted_Q_iteration(domain,set_tuples,model,criteria):
 
     N = 0
-    Q_N = 0
+    Q_prev = 0
     
     while criteria() is True:
         N = N + 1
-        TS = []
+        i = []
+        o = []
         for i in range(len(set_tuples)):
-            x_t = set_tuples[0]
-            u_t = set_tuples[1]
-            r_t = set_tuples[2]
-            x_t_next = set_tuples[3]
-            i = 0
-            o = 0
+            x_t = set_tuples[i][0]
+            u_t = set_tuples[i][1]
+            r_t = set_tuples[i][2]
+            x_t_next = set_tuples[i][3]
+            if N == 1:
+                i.append((x_t,u_t))
+                o.append(r_t)
+            else:
+                Q_max = -np.inf
+                for u in domain.actions:
+                    Q_value = Q_prev.predict(x_t_next,u)
+                    if Q_value > Q_max:
+                        Q_max = Q_value
+                i.append((x_t,u_t))
+                o.append(r_t+domain.discount_factor*Q_max)
+            Q_prev = model(o,i)
     
-    return Q_N
+    return Q_prev
 
 def random_Policy(x):
     rand = np.random.rand()
