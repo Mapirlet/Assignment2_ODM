@@ -186,11 +186,11 @@ class Domain:
         """
         new_x = self.getNextState(init_x[0], init_x[1], action)
         
-        print("( x"+ str(iteration) + " = " + str(init_x) + "," + 
-            " u" + str(iteration) + " = " + str(action) + "," +  
-            " r" + str(iteration) + " = " +
-            str(self.getReward(init_x[0],init_x[1],action,new_x[0],new_x[1])) +"," + 
-            " x" + str(iteration+1) + " = " + str(new_x) + ")")
+        # print("( x"+ str(iteration) + " = " + str(init_x) + "," + 
+        #     " u" + str(iteration) + " = " + str(action) + "," +  
+        #     " r" + str(iteration) + " = " +
+        #     str(self.getReward(init_x[0],init_x[1],action,new_x[0],new_x[1])) +"," + 
+        #     " x" + str(iteration+1) + " = " + str(new_x) + ")")
         return (init_x,action,self.getReward(init_x[0],init_x[1],action,new_x[0],new_x[1]),new_x)
 
 
@@ -244,5 +244,7 @@ def simulateTrajectory(policy,domain):
 
 
 if __name__ == "__main__":
+
     domain = createInstanceDomain(0.001)
+    
     simulateTrajectory(policyLeft, domain)
