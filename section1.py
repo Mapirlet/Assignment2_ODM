@@ -10,7 +10,7 @@ By:
 import numpy as np
 
 class Domain:
-    def __init__(self, m, g,dis_time,integ_ts, discount_factor):
+    def __init__(self,m, g,dis_time,integ_ts,discount_factor):
         """
         This function initializes the Domain instance.
         Inputs: 
@@ -18,14 +18,14 @@ class Domain:
             - g : gravitational constant
             - dis_time : discrete time 
             - integ_ts : integration time step
-            - discount_factor :
+            - discount_factor : Discount factor
         """   
         self.m = m 
         self.g = g
         self.dis_time = dis_time
         self.integ_ts = integ_ts
         self.discount_factor = discount_factor
-        self.actions = [-4, 4]
+        self.actions = [4, -4]
 
     def hillFunction(self, p):
         """
@@ -39,7 +39,7 @@ class Domain:
             value = p**2 + p
             return value
         else:
-            value = p/sqrt(1+5*p**2)
+            value = p/np.sqrt(1+5*p**2)
             return value
 
 
@@ -130,16 +130,13 @@ class Domain:
         new_s = s
 
         if self.terminalState(new_p, new_s):
-                #print("oh : " + str(new_p) +" , " + str(new_s))
                 return new_p, new_s
 
         for i in range(int(nb_steps)):
             tmp = self.dynamicFunction(new_p,new_s,u)
             new_p = self.integ_ts*tmp[0] + new_p
             new_s = self.integ_ts*tmp[1] + new_s
-            #print(str(new_p) +" , " + str(new_s))
 
-        #print( "end" + str(new_p) +" , " + str(new_s)) 
         return new_p, new_s
 
 
@@ -215,14 +212,17 @@ def createInstanceDomain(integ_ts):
     return domain
 
 
+def policyLeft(p,s):
+    """
+    This function returns the action to go left
+    """
+    return "left"
+
 def policyRight(p,s):
     """
     This function returns the action to go right
-    Output:
-        tuple with 2 integer values representing the action to go right 
     """
     return "right"
-
 
 def simulateTrajectory(policy,domain):
     """
@@ -245,5 +245,4 @@ def simulateTrajectory(policy,domain):
 
 if __name__ == "__main__":
     domain = createInstanceDomain(0.001)
-    simulateTrajectory(policyRight, domain)
-
+    simulateTrajectory(policyLeft, domain)
