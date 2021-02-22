@@ -140,7 +140,7 @@ class Domain:
         return new_p, new_s
 
 
-    def getReward(self, p, s, u):
+    def getReward(self, p, s, u, new_p, new_s):
         """
         This function computes the reward that the car will get given its state and an action 
         Inputs: 
@@ -150,7 +150,6 @@ class Domain:
         Output: 
             Reward received by the car by taking this action  
         """
-        new_p, new_s = self.getNextState(p,s,u)
 
         if self.terminalState(p, s) and p == new_p and s == new_s:
             return 0
@@ -186,12 +185,13 @@ class Domain:
             -action: action given by the policy
         """
         new_x = self.getNextState(init_x[0], init_x[1], action)
+        
         print("( x"+ str(iteration) + " = " + str(init_x) + "," + 
             " u" + str(iteration) + " = " + str(action) + "," +  
             " r" + str(iteration) + " = " +
-            str(self.getReward(init_x[0], init_x[1], action)) +"," + 
+            str(self.getReward(init_x[0],init_x[1],action,new_x[0],new_x[1])) +"," + 
             " x" + str(iteration+1) + " = " + str(new_x) + ")")
-        return (init_x,action,self.getReward(init_x[0], init_x[1],action),new_x)
+        return (init_x,action,self.getReward(init_x[0],init_x[1],action,new_x[0],new_x[1]),new_x)
 
 
 def createInstanceDomain(integ_ts):
@@ -212,13 +212,13 @@ def createInstanceDomain(integ_ts):
     return domain
 
 
-def policyLeft(p,s):
+def policyLeft(x):
     """
     This function returns the action to go left
     """
     return "left"
 
-def policyRight(p,s):
+def policyRight(x):
     """
     This function returns the action to go right
     """
@@ -236,7 +236,7 @@ def simulateTrajectory(policy,domain):
     init_state = p_0,s_0
     steps = 11
     for i in range(steps):
-        action = policy(p_0,s_0)
+        action = policy((p_0,s_0))
         if isinstance(action,str):
             action = domain.getAction(action)
         traj = domain.generateTrajectory(init_state,action,i)
