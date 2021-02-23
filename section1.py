@@ -218,33 +218,35 @@ def policyLeft(x):
     """
     return "left"
 
-def policyRight(x):
-    """
-    This function returns the action to go right
-    """
-    return "right"
-
-def simulateTrajectory(policy,domain):
+def simulateTrajectory(policy,domain,steps,init0 = False):
     """
     This function simulates a trajectory under a policy and a domain.
     Inputs: 
         -policy : give the action (following a strategy)
         -domain : domain on wich we want to simulate
     """
-    p_0 = np.random.uniform(-0.1, 0.1)
-    s_0 = 0
+    if init0 == False:
+        p_0 = np.random.uniform(-0.1, 0.1)
+        s_0 = 0
+    else:
+        p_0 = 0
+        s_0 = 0
     init_state = p_0,s_0
-    steps = 11
+    steps = steps
+    trajectory = [] 
     for i in range(steps):
-        action = policy((p_0,s_0))
+        action = policy(p_0,s_0)
         if isinstance(action,str):
             action = domain.getAction(action)
         traj = domain.generateTrajectory(init_state,action,i)
         init_state = traj[3]
+        trajectory.append(traj[0])
+
+    return trajectory
 
 
 if __name__ == "__main__":
-
+    
     domain = createInstanceDomain(0.001)
     
-    simulateTrajectory(policyLeft, domain)
+    print(simulateTrajectory(policyLeft, domain, 11,1))
