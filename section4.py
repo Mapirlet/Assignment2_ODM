@@ -14,6 +14,7 @@ from sklearn.ensemble import ExtraTreesClassifier
 from keras.models import Sequential
 from keras.layers import Dense
 from section1 import createInstanceDomain
+from section2 import compute_expected_return
 
 
 def Fitted_Q_iteration(domain,set_tuples,model,criteria):
@@ -115,7 +116,7 @@ def Extremely_Randomized_Trees(i,o):
 def Neural_networks(i,o):
     return
 
-def plot_Q(domain,Q_fct,resolution):
+def plot_all_from_Q(domain,Q_fct,resolution):
     
     p_vector = np.arange(-1,1,resolution)
     l_p = len(p_vector)
@@ -123,31 +124,54 @@ def plot_Q(domain,Q_fct,resolution):
     l_s = len(s_vector)
     actions = domain.actions
     l_a = len(actions)
-    color_map = np.zeros([l_p,l_s,l_a])
+    Q_map = np.zeros([l_p,l_s,l_a])
+
     for i in range(l_p):
         for j in range(l_s):
             for k in range(l_a):
                 p = p_vector[i]
                 s = s_vector[j]
                 u = actions[k]
-                color_map[i,j,k] = Q_fct.predict([[p,s,u]])
+                Q_map[i,j,k] = Q_fct.predict([[p,s,u]])
     
-    color_map1 = color_map[:,:,0]
-    color_map2 = color_map[:,:,1]
-    plt.imshow(color_map1, cmap='coolwarm', interpolation='nearest')
+    color_map1 = Q_map[:,:,0]
+    color_map2 = Q_map[:,:,1]
+    fig, ax = plt.subplots()
+    c = ax.pcolormesh(color_map1, cmap='RdBu') #vmin=color_map1.min(), vmax=color_map1.max())
+    #ax.axis([p_vector.min(), p_vector.max(), s_vector.min(), s_vector.max()])
+    fig.colorbar(c)
     plt.show()
     plt.close()
-    plt.imshow(color_map2, cmap='coolwarm', interpolation='nearest')
+    # plt.imshow(color_map1, cmap='coolwarm', interpolation='nearest')
+    # plt.show()
+    # plt.close()
+    # plt.imshow(color_map2, cmap='coolwarm', interpolation='nearest')
+    # plt.show()
+    # plt.close()
+
+    policy = np.zeros([l_p,l_s])
+
+    for s in range(l_p):
+        for p in range(l_s):
+            index = np.argmax(Q_map[s,p])
+            policy[s,p] = actions[index]
+            
+    plt.imshow(policy, cmap='RdBu', interpolation='nearest')
     plt.show()
     plt.close()
-
-def plot_policy(Q_fct,resolution):
-
-    p_vector = np.arange(-1,1,resolution)
-    l_p = len(p_vector)
-    s_vector = np.arange(-3,3,resolution)
-    l_s = len(s_vector)
     
+    policy_object = MyPolicy(policy,resolution)
+    return policy_object
+
+class MyPolicy():
+    def __init__(self,policy_grid,resolution):
+        self.policy = policy_grid
+        self.resolution = resolution
+        
+    def getPolicy(self,x):
+        p_index = round((x[0]+1)/self.resolution)
+        s_index = round((x[1]+3)/self.resolution)
+        return self.policy[p_index,s_index]
 
 if __name__ == "__main__":
    
@@ -160,4 +184,10 @@ if __name__ == "__main__":
    Q_ERT = 0
    Q_NN = 0
    
-   plot_Q(domain,Q_LR,0.01)
+   P_LR = plot_all_from_Q(domain,Q_LR,0.01)
+   P_ERT = 0
+   P_NN = 0
+   
+   J_LR = compute_expected_return(domain,500,P_LR.getPolicy)
+   J_ERT = 0
+   J_NN = 0
