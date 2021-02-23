@@ -1,7 +1,7 @@
 """
 University of Liege
 INFO8003-1 - Optimal decision making for complex problems
-Assignment 1 - Reinforcement Learning in a Discrete Domain
+Assignment 2 - Reinforcement Learning in a Continuous Domain
 By:
     PIRLET Matthias
     CHRISTIAENS Nicolas
@@ -9,7 +9,7 @@ By:
 
 import numpy as np
 import matplotlib.pyplot as plt
-from section1 import createInstanceDomain,policyRight
+from section1 import createInstanceDomain,policyLeft
 
 def compute_expected_return(domain, N, policy, p_init, s_init):
     """
@@ -28,15 +28,15 @@ def compute_expected_return(domain, N, policy, p_init, s_init):
     for i in range(N):
         if domain.terminalState(pos, speed):
             break
-        action = policy(pos, speed)
+        action = policy((pos, speed))
         if isinstance(action,str):
             action = domain.getAction(action)
-
-        r = domain.getReward(pos, speed, action)
+        new_pos, new_speed = domain.getNextState(pos, speed, action)
+        r = domain.getReward(pos, speed, action, new_pos, new_speed)
         expected_return += ((domain.discount_factor)**i)*r
-        pos, speed = domain.getNextState(pos, speed, action)
-
-
+        pos = new_pos
+        speed = new_speed
+        
     return expected_return
 
 def generatePlot(domain, policy, m, max_n):
@@ -54,10 +54,12 @@ def generatePlot(domain, policy, m, max_n):
         y.append(value)
 
     plt.plot(x, y)
-    plt.xlabel('Size of the trajectory')
-    plt.ylabel('expected return')
+    plt.xlabel('N')
+    plt.ylabel('Expected return')
     plt.show()
 
 if __name__ == "__main__":
+
     domain = createInstanceDomain(0.001)
-    generatePlot(domain, policyRight, 50, 1000)
+
+    generatePlot(domain, policyLeft, 50, 1000)

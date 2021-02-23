@@ -51,14 +51,49 @@ def random_Policy(x):
     else:
         return 4
 
-def create_set_tuples1(domain):
-    return
+def create_set_tuples1(domain,N):
+    
+    set_tuples = []
+    
+    for i in range(N):
+        p = np.random.uniform(-0.1, 0.1)
+        s = 0
+        steps_max = 100
+        for i in range(steps_max):
+            if domain.terminalState(p,s):
+                break
+            action = random_Policy()
+            sample = domain.generateTrajectory((p,s),action,i)
+            (p,s) = sample[3]
+            set_tuples.append(sample)
+                
+    return set_tuples
 
-def create_set_tuples2(domain):
-    return
+def create_set_tuples2(domain,N):
+    
+    set_tuples = []
+    
+    for i in range(N):
+        p = np.random.uniform(-1, 1)
+        s = 0
+        steps_max = 100
+        for i in range(steps_max):
+            if domain.terminalState(p,s):
+                break
+            action = random_Policy()
+            sample = domain.generateTrajectory((p,s),action,i)
+            (p,s) = sample[3]
+            set_tuples.append(sample)
+    
+    return set_tuples
 
-def stopping_criteria1():
-    return
+def stopping_criteria1(N,discount_factor):
+    Br = 1
+    denom = (1-discount_factor)**2
+    bound = (2*Br*discount_factor**N)/denom
+    if bound < 1e-05:
+        return False
+    return True
 
 def stopping_criteria2():
     return
