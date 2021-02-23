@@ -21,8 +21,9 @@ def Fitted_Q_iteration(domain,set_tuples,model,criteria):
 
     N = 0
     Q_prev = 0
+    Q_prev2 = 0
     
-    while criteria(N,domain.discount_factor) is True:
+    while criteria(N,domain.discount_factor,Q_prev,Q_prev2,set_tuples) is True:
         N = N + 1
         l = len(set_tuples)
         i = []
@@ -44,6 +45,7 @@ def Fitted_Q_iteration(domain,set_tuples,model,criteria):
                         Q_max = Q_value
                 i.append([x_t[0],x_t[1],u_t])
                 o.append(r_t+domain.discount_factor*Q_max)
+        Q_prev2 = Q_prev
         Q_prev = model(i,o)
     
     return Q_prev
@@ -91,7 +93,7 @@ def create_set_tuples2(domain,N):
     
     return set_tuples
 
-def stopping_criterion1(N,discount_factor):
+def stopping_criterion1(N,discount_factor,Q_N,Q_prev,set_tuples):
     Br = 1
     denom = (1-discount_factor)**2
     bound = (2*Br*discount_factor**N)/denom
@@ -99,8 +101,19 @@ def stopping_criterion1(N,discount_factor):
         return False
     return True
 
-def stopping_criterion2():
-    
+def stopping_criterion2(N,discount_factor,Q_N,Q_prev,set_tuples):
+    if (N == 0) or (N == 1):
+        return True
+    tolerance = 1
+    summ = 0
+    for j in range(len(set_tuples)):
+        x_t = set_tuples[j][0]
+        u_t = set_tuples[j][1]
+        tmp1 = Q_N.predict([[x_t[0],x_t[1],u_t]])
+        tmp2 = Q_prev.predict([[x_t[0],x_t[1],u_t]])
+        summ = summ + abs(tmp1[0]-tmp2[0])
+    if summ < tolerance:
+        return False
     return True
 
 def Linear_Regression(i,o):
@@ -114,13 +127,18 @@ def Extremely_Randomized_Trees(i,o):
     return model
 
 def Neural_networks(i,o):
-    return
+    model = Sequential()
+    model.add(Dense(50, input_dim=3, activation='relu'))
+    model.add(Dense(1, activation='sigmoid'))
+    model.compile(loss='binary_crossentropy',optimizer='adam',metrics=['accuracy'])
+    model.fit(i,o,epochs=150,batch_size=10)
+    return model
 
 def plot_all_from_Q(domain,Q_fct,resolution):
     
-    p_vector = np.arange(-1,1,resolution)
+    p_vector = np.arange(-1,1+resolution,resolution)
     l_p = len(p_vector)
-    s_vector = np.arange(-3,3,resolution)
+    s_vector = np.arange(-3,3+resolution,resolution)
     l_s = len(s_vector)
     actions = domain.actions
     l_a = len(actions)
@@ -137,9 +155,10 @@ def plot_all_from_Q(domain,Q_fct,resolution):
     color_map1 = Q_map[:,:,0]
     color_map2 = Q_map[:,:,1]
     fig, ax = plt.subplots()
-    c = ax.pcolormesh(color_map1, cmap='RdBu') #vmin=color_map1.min(), vmax=color_map1.max())
-    #ax.axis([p_vector.min(), p_vector.max(), s_vector.min(), s_vector.max()])
-    fig.colorbar(c)
+    s_vector,p_vector = np.meshgrid(np.linspace(-1, 1,201), np.linspace(-3, 3, 601))
+    c = ax.pcolormesh(color_map1, cmap='RdBu',vmin=color_map1.min(), vmax=color_map1.max())
+    ax.axis([p_vector.min(), p_vector.max(), s_vector.min(), s_vector.max()])
+    fig.colorbar(c,ax=ax)
     plt.show()
     plt.close()
     # plt.imshow(color_map1, cmap='coolwarm', interpolation='nearest')
@@ -180,14 +199,14 @@ if __name__ == "__main__":
    F1 = create_set_tuples1(domain,100)
    F2 = create_set_tuples2(domain,100)
    
-   Q_LR = Fitted_Q_iteration(domain,F1,Linear_Regression,stopping_criterion1)
-   Q_ERT = 0
+   Q_LR = Fitted_Q_iteration(domain,F2,Linear_Regression,stopping_criterion1)
+   #Q_ERT = Fitted_Q_iteration(domain,F2,Extremely_Randomized_Trees,stopping_criterion1)
    Q_NN = 0
    
    P_LR = plot_all_from_Q(domain,Q_LR,0.01)
-   P_ERT = 0
+   #P_ERT = plot_all_from_Q(domain,Q_ERT,0.01)
    P_NN = 0
    
    J_LR = compute_expected_return(domain,500,P_LR.getPolicy)
-   J_ERT = 0
+   #J_ERT = compute_expected_return(domain,500,P_ERT.getPolicy)
    J_NN = 0
