@@ -66,8 +66,24 @@ def generatePlot(domain, policy, m, N):
     plt.ylabel('Expected return')
     plt.show()
 
+def generatePlot2(domain, policy, m, max_n):
+    reward_matrix = np.zeros([m, max_n])
+    x = list(range(1, max_n+1))
+    for i in range(1,m+1): #50
+        p_0 = np.random.uniform(-0.1, 0.1)
+        s_0 = 0
+        for j in range(1,max_n+1): #N
+            reward_matrix[i-1,j-1] = compute_expected_return_(domain, j, policy, p_0, s_0)
+
+    rew = np.sum(reward_matrix, axis=0)
+    y = rew/m
+    plt.plot(x, y)
+    plt.xlabel('Size of the trajectory')
+    plt.ylabel('expected return')
+    plt.show()
+
 if __name__ == "__main__":
 
     domain = createInstanceDomain(0.001)
 
-    generatePlot(domain, policyLeft, 50, 1000)
+    generatePlot2(domain, policyLeft, 50, 500)
