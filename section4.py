@@ -8,6 +8,7 @@ By:
 """
 
 import numpy as np
+import matplotlib.pyplot as plt
 from sklearn.linear_model import LinearRegression
 from sklearn.ensemble import ExtraTreesClassifier
 from keras.models import Sequential
@@ -89,7 +90,7 @@ def create_set_tuples2(domain,N):
     
     return set_tuples
 
-def stopping_criteria1(N,discount_factor):
+def stopping_criterion1(N,discount_factor):
     Br = 1
     denom = (1-discount_factor)**2
     bound = (2*Br*discount_factor**N)/denom
@@ -97,7 +98,7 @@ def stopping_criteria1(N,discount_factor):
         return False
     return True
 
-def stopping_criteria2():
+def stopping_criterion2():
     
     return True
 
@@ -106,11 +107,47 @@ def Linear_Regression(i,o):
     model.fit(i,o)
     return model
 
-def Extremely_Randomized_Trees():
+def Extremely_Randomized_Trees(i,o):
+    model = ExtraTreesClassifier(random_state=0)
+    model.fit(i,o)
+    return model
+
+def Neural_networks(i,o):
     return
 
-def Neural_networks():
-    return
+def plot_Q(domain,Q_fct,resolution):
+    
+    p_vector = np.arange(-1,1,resolution)
+    l_p = len(p_vector)
+    s_vector = np.arange(-3,3,resolution)
+    l_s = len(s_vector)
+    actions = domain.actions
+    l_a = len(actions)
+    color_map = np.zeros([l_p,l_s,l_a])
+    for i in range(l_p):
+        for j in range(l_s):
+            for k in range(l_a):
+                p = p_vector[i]
+                s = s_vector[j]
+                u = actions[k]
+                color_map[i,j,k] = Q_fct.predict([[p,s,u]])
+    
+    color_map1 = color_map[:,:,0]
+    color_map2 = color_map[:,:,1]
+    plt.imshow(color_map1, cmap='coolwarm', interpolation='nearest')
+    plt.show()
+    plt.close()
+    plt.imshow(color_map2, cmap='coolwarm', interpolation='nearest')
+    plt.show()
+    plt.close()
+
+def plot_policy(Q_fct,resolution):
+
+    p_vector = np.arange(-1,1,resolution)
+    l_p = len(p_vector)
+    s_vector = np.arange(-3,3,resolution)
+    l_s = len(s_vector)
+    
 
 if __name__ == "__main__":
    
@@ -119,6 +156,8 @@ if __name__ == "__main__":
    F1 = create_set_tuples1(domain,100)
    F2 = create_set_tuples2(domain,100)
    
-   Q_LR = Fitted_Q_iteration(domain,F1,Linear_Regression,stopping_criteria1)
+   Q_LR = Fitted_Q_iteration(domain,F1,Linear_Regression,stopping_criterion1)
    Q_ERT = 0
    Q_NN = 0
+   
+   plot_Q(domain,Q_LR,0.01)
