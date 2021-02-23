@@ -10,7 +10,7 @@ By:
 import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.linear_model import LinearRegression
-from sklearn.ensemble import ExtraTreesClassifier
+from sklearn.ensemble import ExtraTreesRegressor
 from keras.models import Sequential
 from keras.layers import Dense
 from section1 import createInstanceDomain
@@ -122,7 +122,7 @@ def Linear_Regression(i,o):
     return model
 
 def Extremely_Randomized_Trees(i,o):
-    model = ExtraTreesClassifier(random_state=0)
+    model = ExtraTreesRegressor(random_state=0)
     model.fit(i,o)
     return model
 
@@ -210,17 +210,17 @@ if __name__ == "__main__":
    F1 = create_set_tuples1(domain,100)
    F2 = create_set_tuples2(domain,100)
    
-   Q_LR = Fitted_Q_iteration(domain,F2,Linear_Regression,stopping_criterion1)
-   #Q_ERT = Fitted_Q_iteration(domain,F2,Extremely_Randomized_Trees,stopping_criterion1)
+   #Q_LR = Fitted_Q_iteration(domain,F2,Linear_Regression,stopping_criterion1)
+   Q_ERT = Fitted_Q_iteration(domain,F2,Extremely_Randomized_Trees,stopping_criterion1)
    #Q_NN = Fitted_Q_iteration(domain,F2,Neural_Networks,stopping_criterion1)
    
-   P_LR = plot_all_from_Q(domain,Q_LR,0.01)
-   #P_ERT = plot_all_from_Q(domain,Q_ERT,0.01)
+   #P_LR = plot_all_from_Q(domain,Q_LR,0.01)
+   P_ERT = plot_all_from_Q(domain,Q_ERT,0.01)
    #P_NN = plot_all_from_Q(domain,Q_NN,0.01)
    
-   J_LR = compute_expected_return(domain,500,P_LR.getPolicy)
-   print(J_LR)
-   #J_ERT = compute_expected_return(domain,500,P_ERT.getPolicy)
-   #print(J_ERT)
+   # J_LR = compute_expected_return(domain,500,P_LR.getPolicy)
+   # print(J_LR)
+   J_ERT = compute_expected_return(domain,500,P_ERT.getPolicy)
+   print(J_ERT)
    #J_NN = compute_expected_return(domain,500,P_NN.getPolicy)
    #print(J_NN)
