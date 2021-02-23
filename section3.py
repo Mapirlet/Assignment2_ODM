@@ -1,7 +1,7 @@
 """
 University of Liege
 INFO8003-1 - Optimal decision making for complex problems
-Assignment 1 - Reinforcement Learning in a Discrete Domain
+Assignment 2 - Reinforcement Learning in a Continuous Domain
 By:
     PIRLET Matthias
     CHRISTIAENS Nicolas
@@ -33,6 +33,3 @@ if __name__ == '__main__':
     trajectory = simulateTrajectory(policyRight, domain, 10,1)
 
     generate_images(trajectory)
-
-
-
