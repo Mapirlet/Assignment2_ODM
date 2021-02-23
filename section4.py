@@ -144,7 +144,7 @@ def plot_all_from_Q(domain,Q_fct,resolution):
     actions = domain.actions
     l_a = len(actions)
     X, Y = np.meshgrid(p_vector,s_vector)
-    Q_map = np.zeros([l_p,l_s,l_a])
+    Q_map = np.zeros([l_s,l_p,l_a])
 
     for i in range(l_p):
         for j in range(l_s):
