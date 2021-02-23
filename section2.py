@@ -45,7 +45,7 @@ def generatePlot(domain, policy, m, max_n):
     x = list(range(1, max_n+1))
     for i in range(1,max_n+1): #size of N
         J = []
-        for i in range(1,m+1): #50
+        for j in range(1,m+1): #50
             p_0 = np.random.uniform(-0.1, 0.1)
             s_0 = 0
             expected_return = compute_expected_return(domain, i, policy, p_0, s_0)
@@ -61,10 +61,3 @@ def generatePlot(domain, policy, m, max_n):
 if __name__ == "__main__":
     domain = createInstanceDomain(0.001)
     generatePlot(domain, policyRight, 50, 1000)
-
-
-
-
-
-
-
