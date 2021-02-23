@@ -126,12 +126,13 @@ def Extremely_Randomized_Trees(i,o):
     model.fit(i,o)
     return model
 
-def Neural_networks(i,o):
+def Neural_Networks(i,o):
     model = Sequential()
-    model.add(Dense(50, input_dim=3, activation='relu'))
+    model.add(Dense(3, input_dim=3, activation='relu'))
+    model.add(Dense(30, activation='relu'))
     model.add(Dense(1, activation='sigmoid'))
     model.compile(loss='binary_crossentropy',optimizer='adam',metrics=['accuracy'])
-    model.fit(i,o,epochs=150,batch_size=10)
+    model.fit(i,o)
     return model
 
 def plot_all_from_Q(domain,Q_fct,resolution):
@@ -157,26 +158,25 @@ def plot_all_from_Q(domain,Q_fct,resolution):
     fig, ax = plt.subplots()
     s_vector,p_vector = np.meshgrid(np.linspace(-1, 1,201), np.linspace(-3, 3, 601))
     c = ax.pcolormesh(color_map1, cmap='RdBu',vmin=color_map1.min(), vmax=color_map1.max())
-    ax.axis([p_vector.min(), p_vector.max(), s_vector.min(), s_vector.max()])
     fig.colorbar(c,ax=ax)
+    plt.xlabel('Position')
+    plt.ylabel('Speed')
     plt.show()
     plt.close()
-    # plt.imshow(color_map1, cmap='coolwarm', interpolation='nearest')
-    # plt.show()
-    # plt.close()
-    # plt.imshow(color_map2, cmap='coolwarm', interpolation='nearest')
-    # plt.show()
-    # plt.close()
 
     policy = np.zeros([l_p,l_s])
 
-    for s in range(l_p):
-        for p in range(l_s):
-            index = np.argmax(Q_map[s,p])
-            policy[s,p] = actions[index]
-            
-    plt.imshow(policy, cmap='RdBu', interpolation='nearest')
-    plt.show()
+    for p in range(l_p):
+        for s in range(l_s):
+            index = np.argmax(Q_map[p,s])
+            policy[p,s] = actions[index]
+    
+    min_v = -4
+    max_v = 4
+    plt.contourf(x=p_vector,y=s_vector,z=policy,cmap='RdBu',vmax=max_v,vmin=min_v)
+    plt.colorbar()
+    plt.xlabel('Position')
+    plt.ylabel('Speed')
     plt.close()
     
     policy_object = MyPolicy(policy,resolution)
@@ -201,12 +201,12 @@ if __name__ == "__main__":
    
    Q_LR = Fitted_Q_iteration(domain,F2,Linear_Regression,stopping_criterion1)
    #Q_ERT = Fitted_Q_iteration(domain,F2,Extremely_Randomized_Trees,stopping_criterion1)
-   Q_NN = 0
+   #Q_NN = Fitted_Q_iteration(domain,F2,Neural_Networks,stopping_criterion1)
    
    P_LR = plot_all_from_Q(domain,Q_LR,0.01)
    #P_ERT = plot_all_from_Q(domain,Q_ERT,0.01)
-   P_NN = 0
+   #P_NN = plot_all_from_Q(domain,Q_NN,0.01)
    
    J_LR = compute_expected_return(domain,500,P_LR.getPolicy)
    #J_ERT = compute_expected_return(domain,500,P_ERT.getPolicy)
-   J_NN = 0
+   #J_NN = compute_expected_return(domain,500,P_NN.getPolicy)
