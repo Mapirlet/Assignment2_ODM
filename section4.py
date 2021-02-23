@@ -158,23 +158,21 @@ def plot_all_from_Q(domain,Q_fct,resolution):
     color_map2 = Q_map[:,:,1]
     min_v = np.min(color_map1)
     max_v = np.max(color_map1)
-    plt.contourf(X,Y,color_map1,cmap='RdBu',vmax=max_v,vmin=min_v)
-    plt.colorbar()
-    plt.title('U = 4')
-    plt.xlabel('Position')
-    plt.ylabel('Speed')
-    plt.show
-    plt.close()
+    fig1, ax1 = plt.subplots()
+    c = ax1.contourf(X,Y,color_map1,cmap='RdBu',vmax=max_v,vmin=min_v)
+    fig1.colorbar(c)
+    ax1.set_title('U = 4')
+    ax1.set_xlabel('Position')
+    ax1.set_ylabel('Speed')
     
     min_v = np.min(color_map2)
     max_v = np.max(color_map2)
-    plt.contourf(X,Y,color_map2,cmap='RdBu',vmax=max_v,vmin=min_v)
-    plt.colorbar()
-    plt.title('U = -4')
-    plt.xlabel('Position')
-    plt.ylabel('Speed')
-    plt.show
-    plt.close()
+    fig2, ax2 = plt.subplots()
+    c = ax2.contourf(X,Y,color_map2,cmap='RdBu',vmax=max_v,vmin=min_v)
+    fig2.colorbar(c)
+    ax2.set_title('U = -4')
+    ax2.set_xlabel('Position')
+    ax2.set_ylabel('Speed')
 
     policy = np.zeros([l_s,l_p])
 
@@ -185,12 +183,12 @@ def plot_all_from_Q(domain,Q_fct,resolution):
     
     min_v = -4
     max_v = 4
-    plt.contourf(X,Y,policy,cmap='RdBu',vmax=max_v,vmin=min_v)
-    plt.colorbar()
-    plt.title('Policy (blue = 4) / (red = -4)')
-    plt.xlabel('Position')
-    plt.ylabel('Speed')
-    plt.show
+    fig3, ax3 = plt.subplots()
+    c = ax3.contourf(X,Y,policy,cmap='RdBu',vmax=max_v,vmin=min_v)
+    fig3.colorbar(c)
+    ax3.set_title('Policy (blue = 4) / (red = -4)')
+    ax3.set_xlabel('Position')
+    ax3.set_ylabel('Speed')
     
     policy_object = MyPolicy(policy,resolution)
     return policy_object
@@ -223,4 +221,6 @@ if __name__ == "__main__":
    J_LR = compute_expected_return(domain,500,P_LR.getPolicy)
    print(J_LR)
    #J_ERT = compute_expected_return(domain,500,P_ERT.getPolicy)
+   #print(J_ERT)
    #J_NN = compute_expected_return(domain,500,P_NN.getPolicy)
+   #print(J_NN)
