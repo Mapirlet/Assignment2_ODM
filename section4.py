@@ -137,12 +137,13 @@ def Neural_Networks(i,o):
 
 def plot_all_from_Q(domain,Q_fct,resolution):
     
-    p_vector = np.arange(-1,1+resolution,resolution)
+    p_vector = np.linspace(-1,1,int(2/resolution)+1)
     l_p = len(p_vector)
-    s_vector = np.arange(-3,3+resolution,resolution)
+    s_vector = np.linspace(-3,3,int(6/resolution)+1)
     l_s = len(s_vector)
     actions = domain.actions
     l_a = len(actions)
+    X, Y = np.meshgrid(p_vector,s_vector)
     Q_map = np.zeros([l_p,l_s,l_a])
 
     for i in range(l_p):
@@ -151,33 +152,45 @@ def plot_all_from_Q(domain,Q_fct,resolution):
                 p = p_vector[i]
                 s = s_vector[j]
                 u = actions[k]
-                Q_map[i,j,k] = Q_fct.predict([[p,s,u]])
+                Q_map[j,i,k] = Q_fct.predict([[p,s,u]])
     
     color_map1 = Q_map[:,:,0]
     color_map2 = Q_map[:,:,1]
-    fig, ax = plt.subplots()
-    s_vector,p_vector = np.meshgrid(np.linspace(-1, 1,201), np.linspace(-3, 3, 601))
-    c = ax.pcolormesh(color_map1, cmap='RdBu',vmin=color_map1.min(), vmax=color_map1.max())
-    fig.colorbar(c,ax=ax)
+    min_v = np.min(color_map1)
+    max_v = np.max(color_map1)
+    plt.contourf(X,Y,color_map1,cmap='RdBu',vmax=max_v,vmin=min_v)
+    plt.colorbar()
+    plt.title('U = 4')
     plt.xlabel('Position')
     plt.ylabel('Speed')
-    plt.show()
+    plt.show
+    plt.close()
+    
+    min_v = np.min(color_map2)
+    max_v = np.max(color_map2)
+    plt.contourf(X,Y,color_map2,cmap='RdBu',vmax=max_v,vmin=min_v)
+    plt.colorbar()
+    plt.title('U = -4')
+    plt.xlabel('Position')
+    plt.ylabel('Speed')
+    plt.show
     plt.close()
 
-    policy = np.zeros([l_p,l_s])
+    policy = np.zeros([l_s,l_p])
 
     for p in range(l_p):
         for s in range(l_s):
-            index = np.argmax(Q_map[p,s])
-            policy[p,s] = actions[index]
+            index = np.argmax(Q_map[s,p])
+            policy[s,p] = actions[index]
     
     min_v = -4
     max_v = 4
-    plt.contourf(x=p_vector,y=s_vector,z=policy,cmap='RdBu',vmax=max_v,vmin=min_v)
+    plt.contourf(X,Y,policy,cmap='RdBu',vmax=max_v,vmin=min_v)
     plt.colorbar()
+    plt.title('Policy (blue = 4) / (red = -4)')
     plt.xlabel('Position')
     plt.ylabel('Speed')
-    plt.close()
+    plt.show
     
     policy_object = MyPolicy(policy,resolution)
     return policy_object
@@ -190,7 +203,7 @@ class MyPolicy():
     def getPolicy(self,x):
         p_index = round((x[0]+1)/self.resolution)
         s_index = round((x[1]+3)/self.resolution)
-        return self.policy[p_index,s_index]
+        return self.policy[s_index,p_index]
 
 if __name__ == "__main__":
    
@@ -208,5 +221,6 @@ if __name__ == "__main__":
    #P_NN = plot_all_from_Q(domain,Q_NN,0.01)
    
    J_LR = compute_expected_return(domain,500,P_LR.getPolicy)
+   print(J_LR)
    #J_ERT = compute_expected_return(domain,500,P_ERT.getPolicy)
    #J_NN = compute_expected_return(domain,500,P_NN.getPolicy)
