@@ -7,9 +7,8 @@ By:
     CHRISTIAENS Nicolas
 """
 
-import numpy as np
 import imageio
-from section1 import createInstanceDomain,policyRight,simulateTrajectory
+from section1 import createInstanceDomain,policyLeft,simulateTrajectory
 from display_caronthehill import save_caronthehill_image
 
 def generate_images(trajectory):
@@ -30,6 +29,6 @@ def generate_images(trajectory):
 if __name__ == '__main__':
 
     domain = createInstanceDomain(0.001)
-    trajectory = simulateTrajectory(policyRight, domain, 10,1)
+    trajectory = simulateTrajectory(policyLeft, domain, 10,1)
 
     generate_images(trajectory)

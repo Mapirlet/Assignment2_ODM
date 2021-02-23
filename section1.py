@@ -235,7 +235,7 @@ def simulateTrajectory(policy,domain,steps,init0 = False):
     steps = steps
     trajectory = [] 
     for i in range(steps):
-        action = policy(p_0,s_0)
+        action = policy([p_0,s_0])
         if isinstance(action,str):
             action = domain.getAction(action)
         traj = domain.generateTrajectory(init_state,action,i)
