@@ -20,27 +20,29 @@ def Fitted_Q_iteration(domain,set_tuples,model,criteria):
     N = 0
     Q_prev = 0
     
-    while criteria() is True:
+    while criteria(N,domain.discount_factor) is True:
         N = N + 1
+        l = len(set_tuples)
         i = []
         o = []
-        for i in range(len(set_tuples)):
-            x_t = set_tuples[i][0]
-            u_t = set_tuples[i][1]
-            r_t = set_tuples[i][2]
-            x_t_next = set_tuples[i][3]
+        for j in range(l):
+            x_t = set_tuples[j][0]
+            u_t = set_tuples[j][1]
+            r_t = set_tuples[j][2]
+            x_t_next = set_tuples[j][3]
             if N == 1:
-                i.append((x_t,u_t))
+                i.append([x_t[0],x_t[1],u_t])
                 o.append(r_t)
             else:
                 Q_max = -np.inf
                 for u in domain.actions:
-                    Q_value = Q_prev.predict(x_t_next,u)
+                    Q_value = Q_prev.predict([[x_t_next[0],x_t_next[1],u]])
+                    Q_value = Q_value[0]
                     if Q_value > Q_max:
                         Q_max = Q_value
-                i.append((x_t,u_t))
+                i.append([x_t[0],x_t[1],u_t])
                 o.append(r_t+domain.discount_factor*Q_max)
-            Q_prev = model(o,i)
+        Q_prev = model(i,o)
     
     return Q_prev
 
@@ -62,7 +64,7 @@ def create_set_tuples1(domain,N):
         for i in range(steps_max):
             if domain.terminalState(p,s):
                 break
-            action = random_Policy()
+            action = random_Policy((p,s))
             sample = domain.generateTrajectory((p,s),action,i)
             (p,s) = sample[3]
             set_tuples.append(sample)
@@ -80,7 +82,7 @@ def create_set_tuples2(domain,N):
         for i in range(steps_max):
             if domain.terminalState(p,s):
                 break
-            action = random_Policy()
+            action = random_Policy((p,s))
             sample = domain.generateTrajectory((p,s),action,i)
             (p,s) = sample[3]
             set_tuples.append(sample)
@@ -91,15 +93,18 @@ def stopping_criteria1(N,discount_factor):
     Br = 1
     denom = (1-discount_factor)**2
     bound = (2*Br*discount_factor**N)/denom
-    if bound < 1e-05:
+    if bound < 1e-02:
         return False
     return True
 
 def stopping_criteria2():
-    return
+    
+    return True
 
-def Liner_Regression():
-    return
+def Linear_Regression(i,o):
+    model = LinearRegression()
+    model.fit(i,o)
+    return model
 
 def Extremely_Randomized_Trees():
     return
@@ -113,3 +118,7 @@ if __name__ == "__main__":
     
    F1 = create_set_tuples1(domain,100)
    F2 = create_set_tuples2(domain,100)
+   
+   Q_LR = Fitted_Q_iteration(domain,F1,Linear_Regression,stopping_criteria1)
+   Q_ERT = 0
+   Q_NN = 0
