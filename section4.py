@@ -110,5 +110,6 @@ def Neural_networks():
 if __name__ == "__main__":
    
    domain = createInstanceDomain(0.001) 
-   
-   
+    
+   F1 = create_set_tuples1(domain,100)
+   F2 = create_set_tuples2(domain,100)
