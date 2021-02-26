@@ -11,8 +11,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.linear_model import LinearRegression
 from sklearn.ensemble import ExtraTreesRegressor
-from keras.models import Sequential
-from keras.layers import Dense
+from sklearn.neural_network import MLPRegressor
 from section1 import createInstanceDomain
 from section2 import compute_expected_return
 
@@ -24,6 +23,7 @@ def Fitted_Q_iteration(domain,set_tuples,model,criteria):
     Q_prev2 = 0
     
     while criteria(N,domain.discount_factor,Q_prev,Q_prev2,set_tuples) is True:
+        print(N)
         N = N + 1
         l = len(set_tuples)
         i = []
@@ -39,7 +39,7 @@ def Fitted_Q_iteration(domain,set_tuples,model,criteria):
             else:
                 Q_max = -np.inf
                 for u in domain.actions:
-                    Q_value = Q_prev.predict([[x_t_next[0],x_t_next[1],u]])
+                    Q_value = Q_prev.predict(np.array([x_t_next[0],x_t_next[1],u]).reshape(-1,3))
                     Q_value = Q_value[0]
                     if Q_value > Q_max:
                         Q_max = Q_value
@@ -97,7 +97,7 @@ def stopping_criterion1(N,discount_factor,Q_N,Q_prev,set_tuples):
     Br = 1
     denom = (1-discount_factor)**2
     bound = (2*Br*discount_factor**N)/denom
-    if bound < 1e-02:
+    if bound < 10:
         return False
     return True
 
@@ -122,16 +122,12 @@ def Linear_Regression(i,o):
     return model
 
 def Extremely_Randomized_Trees(i,o):
-    model = ExtraTreesRegressor(random_state=0)
+    model = ExtraTreesRegressor(n_estimators=20,random_state=0)
     model.fit(i,o)
     return model
 
 def Neural_Networks(i,o):
-    model = Sequential()
-    model.add(Dense(3, input_dim=3, activation='relu'))
-    model.add(Dense(30, activation='relu'))
-    model.add(Dense(1, activation='sigmoid'))
-    model.compile(loss='binary_crossentropy',optimizer='adam',metrics=['accuracy'])
+    model = MLPRegressor(hidden_layer_sizes=(9,9,9,9,9),activation='tanh',random_state=0, max_iter=500)
     model.fit(i,o)
     return model
 
@@ -152,14 +148,14 @@ def plot_all_from_Q(domain,Q_fct,resolution):
                 p = p_vector[i]
                 s = s_vector[j]
                 u = actions[k]
-                Q_map[j,i,k] = Q_fct.predict([[p,s,u]])
+                Q_map[j,i,k] = Q_fct.predict(np.array([p,s,u]).reshape(-1,3))
     
     color_map1 = Q_map[:,:,0]
     color_map2 = Q_map[:,:,1]
     min_v = np.min(color_map1)
     max_v = np.max(color_map1)
     fig1, ax1 = plt.subplots()
-    c = ax1.contourf(X,Y,color_map1,cmap='RdBu',vmax=max_v,vmin=min_v)
+    c = ax1.contourf(X,Y,color_map1,15,cmap='RdBu',vmax=max_v,vmin=min_v)
     fig1.colorbar(c)
     ax1.set_title('U = 4')
     ax1.set_xlabel('Position')
@@ -168,7 +164,7 @@ def plot_all_from_Q(domain,Q_fct,resolution):
     min_v = np.min(color_map2)
     max_v = np.max(color_map2)
     fig2, ax2 = plt.subplots()
-    c = ax2.contourf(X,Y,color_map2,cmap='RdBu',vmax=max_v,vmin=min_v)
+    c = ax2.contourf(X,Y,color_map2,15,cmap='RdBu',vmax=max_v,vmin=min_v)
     fig2.colorbar(c)
     ax2.set_title('U = -4')
     ax2.set_xlabel('Position')
@@ -199,28 +195,28 @@ class MyPolicy():
         self.resolution = resolution
         
     def getPolicy(self,x):
-        p_index = round((x[0]+1)/self.resolution)
-        s_index = round((x[1]+3)/self.resolution)
+        p_index = np.floor((x[0]+1)/self.resolution)
+        s_index = np.floor((x[1]+3)/self.resolution)
         return self.policy[s_index,p_index]
 
 if __name__ == "__main__":
    
    domain = createInstanceDomain(0.001) 
     
-   F1 = create_set_tuples1(domain,100)
-   F2 = create_set_tuples2(domain,100)
+   F1 = create_set_tuples1(domain,50)
+   F2 = create_set_tuples2(domain,50)
    
    #Q_LR = Fitted_Q_iteration(domain,F2,Linear_Regression,stopping_criterion1)
-   Q_ERT = Fitted_Q_iteration(domain,F2,Extremely_Randomized_Trees,stopping_criterion1)
+   #Q_ERT = Fitted_Q_iteration(domain,F2,Extremely_Randomized_Trees,stopping_criterion1)
    #Q_NN = Fitted_Q_iteration(domain,F2,Neural_Networks,stopping_criterion1)
    
    #P_LR = plot_all_from_Q(domain,Q_LR,0.01)
-   P_ERT = plot_all_from_Q(domain,Q_ERT,0.01)
-   #P_NN = plot_all_from_Q(domain,Q_NN,0.01)
+   #P_ERT = plot_all_from_Q(domain,Q_ERT,0.01)
+   # P_NN = plot_all_from_Q(domain,Q_NN,0.01)
    
    # J_LR = compute_expected_return(domain,500,P_LR.getPolicy)
    # print(J_LR)
-   J_ERT = compute_expected_return(domain,500,P_ERT.getPolicy)
-   print(J_ERT)
-   #J_NN = compute_expected_return(domain,500,P_NN.getPolicy)
-   #print(J_NN)
+   # J_ERT = compute_expected_return(domain,500,P_ERT.getPolicy)
+   # print(J_ERT)
+   # J_NN = compute_expected_return(domain,500,P_NN.getPolicy)
+   # print(J_NN)
