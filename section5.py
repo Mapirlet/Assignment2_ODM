@@ -1,7 +1,7 @@
 """
 University of Liege
 INFO8003-1 - Optimal decision making for complex problems
-Assignment 1 - Reinforcement Learning in a Discrete Domain
+Assignment 2 - Reinforcement Learning in a Continuous Domain
 By:
     PIRLET Matthias
     CHRISTIAENS Nicolas
@@ -9,15 +9,18 @@ By:
 
 import numpy as np
 import matplotlib.pyplot as plt
-from sklearn.neural_network import MLPRegressor
+from keras.layers import Dense,Activation
+from keras.models import Sequential
+from keras.optimizers import SGD
 from section1 import createInstanceDomain
 from section2 import compute_expected_return
 from section4 import create_set_tuples2,MyPolicy
 
 
-def Parametric_Q_learning(set_tuples,alpha):
+def Parametric_Q_learning(domain,set_tuples,alpha):
     
-    weight = 0
+    
+    model = Neural_Networks(2,2)
     l = len(set_tuples)
     
     for j in range(l):
@@ -31,9 +34,14 @@ def Parametric_Q_learning(set_tuples,alpha):
     
     return 0
 
-def Neural_Networks(i,o):
-    model = MLPRegressor(hidden_layer_sizes=(9,9,9,9,9),solver = 'sgd',activation='tanh',random_state=0, max_iter=500)
-    model.fit(i,o)
+def Neural_Networks(input_dim,output_dim,Nb_neurons = 100):
+    model = Sequential([
+                Dense(Nb_neurons,input_shape=(input_dim,)),
+                Activation('relu'),
+                Dense(Nb_neurons),
+                Activation('relu'),
+                Dense(output_dim)])
+    model.compile(optimizer=SGD,loss='mse')
     return model
 
 def derived_policy(domain,Q_fct,resolution,plot=False):
@@ -83,5 +91,5 @@ if __name__ == "__main__":
     
     domain = createInstanceDomain(0.001) 
     
-    F2 = create_set_tuples2(domain,50)
+    F = create_set_tuples2(domain,50)
     
