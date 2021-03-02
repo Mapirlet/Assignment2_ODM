@@ -12,6 +12,8 @@ import matplotlib.pyplot as plt
 from keras.layers import Dense,Activation
 from keras.models import Sequential
 from keras.optimizers import SGD
+import keras.backend as K
+import tensorflow as tf
 from section1 import createInstanceDomain
 from section2 import compute_expected_return
 from section4 import create_set_tuples2,MyPolicy
@@ -20,7 +22,7 @@ from section4 import create_set_tuples2,MyPolicy
 def Parametric_Q_learning(domain,set_tuples,alpha):
     
     
-    model = Neural_Networks(2,2)
+    NN = Neural_Networks(2,2)
     l = len(set_tuples)
     
     for j in range(l):
@@ -29,8 +31,14 @@ def Parametric_Q_learning(domain,set_tuples,alpha):
         r_t = set_tuples[j][2]
         x_t_next = set_tuples[j][3]
         
+        w = NN.model.get_weights()
+        print(w)
+        outputTensor = model.output
+        listOfVariableTensors = model.trainable_weights
+        g = K.gradients(outputTensor, listOfVariableTensors)
+        new_w = w + g*0
+        NN.model.set_weights(new_w)
         
-        temp_diff = r_t 
     
     return 0
 
