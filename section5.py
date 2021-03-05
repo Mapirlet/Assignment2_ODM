@@ -14,7 +14,7 @@ from keras.models import Sequential
 from keras.optimizers import SGD
 from section1 import createInstanceDomain
 from section2 import compute_expected_return
-from section4 import create_set_tuples2,MyPolicy,FQI
+from section4 import create_set_tuples2,MyPolicy,FQI,plot_all_from_Q
 
 
 def Parametric_Q_learning(domain,set_tuples,alpha):
@@ -52,7 +52,7 @@ def Parametric_Q_learning(domain,set_tuples,alpha):
         
     return NN
 
-def Neural_Networks(input_dim,output_dim,alpha,Nb_neurons = 10):
+def Neural_Networks(input_dim,output_dim,alpha,Nb_neurons = 100):
     """
     Inputs: 
         - input_dim : dimension of the inputs
@@ -130,7 +130,7 @@ def experimental_protocol(domain,resolution):
     """
     Experimental protocol of the section 5
     """
-    X = [1,5,10,15,20]
+    X = [1,5,10,20,50,100,200]
     Y_FQI = np.zeros(len(X))
     Y_Param = np.zeros(len(X))
     
@@ -139,14 +139,19 @@ def experimental_protocol(domain,resolution):
         F = create_set_tuples2(domain,nb_transtions)
         
         FQI_ = FQI(domain,F)
-        FQI_policy = GetFQI_policy(domain, FQI, resolution)
+        FQI_policy = GetFQI_policy(domain, FQI_, resolution)
         Y_FQI[i] = compute_expected_return(domain,500,FQI_policy.getPolicy)
         
-        Param = Parametric_Q_learning(domain,F,0.05)
+        Param = Parametric_Q_learning(domain,F,0.2)
         Param_policy = derived_policy(domain,Param,resolution,plot=False)
         Y_Param[i] = compute_expected_return(domain,500,Param_policy.getPolicy)
     
-    return 0
+    plt.plot(X,Y_FQI, 'r') 
+    plt.plot(X,Y_Param, 'b')
+    plt.title('FQI (red) - Parametric Q learning (blue)')
+    plt.xlabel('Number of one-step system transitions')
+    plt.ylabel('Expected return')
+    plt.show()
 
 def GetFQI_policy(domain,FQI,resolution):    
     """
@@ -167,28 +172,18 @@ def GetFQI_policy(domain,FQI,resolution):
     policy = np.zeros([l_s,l_p])
     
     Q_map = np.zeros([l_s,l_p,l_a])
-    Q_tmp = []
-    index = 0
     for i in range(l_p):
         for j in range(l_s):
             for k in range(l_a):
                 p = p_vector[i]
                 s = s_vector[j]
                 u = actions[k]
-                Q_tmp.append(np.asarray([p,s,u]))
-                index = index + 1
-    Q_tmp = np.asarray(Q_tmp)
-    Q_tmp =  FQI.predict(Q_tmp)
-    for i in range(l_p):
-        for j in range(l_s):
-            for k in range(l_a):
-                Q_map[j,i,k] = Q_tmp[i*l_s+j*l_a+k]
-    
+                Q_map[j,i,k] = FQI.predict(np.array([p,s,u]).reshape(-1,3))
     for p in range(l_p):
         for s in range(l_s):
             index = np.argmax(Q_map[s,p])
             policy[s,p] = actions[index]
-    
+            
     policy_object = MyPolicy(policy,resolution)
     
     return policy_object
@@ -197,10 +192,11 @@ if __name__ == "__main__":
     
     domain = createInstanceDomain(0.001) 
     
-    # F = create_set_tuples2(domain,100)
+    # F = create_set_tuples2(domain,10)
     # NN = Parametric_Q_learning(domain,F,0.2)
     # Param_policy = derived_policy(domain,NN,0.01,plot=True)
     # expected = compute_expected_return(domain,500,Param_policy.getPolicy)
     # print(expected)
     
     experimental_protocol(domain,0.01)
+    

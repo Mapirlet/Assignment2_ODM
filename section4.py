@@ -207,7 +207,7 @@ if __name__ == "__main__":
    domain = createInstanceDomain(0.001) 
     
    F1 = create_set_tuples1(domain,50)
-   F2 = create_set_tuples2(domain,50)
+   F2 = create_set_tuples2(domain,100)
    
    #Q_LR = Fitted_Q_iteration(domain,F2,Linear_Regression,stopping_criterion1)
    #Q_ERT = Fitted_Q_iteration(domain,F2,Extremely_Randomized_Trees,stopping_criterion1)
@@ -215,7 +215,7 @@ if __name__ == "__main__":
    
    #P_LR = plot_all_from_Q(domain,Q_LR,0.01)
    #P_ERT = plot_all_from_Q(domain,Q_ERT,0.01)
-   # P_NN = plot_all_from_Q(domain,Q_NN,0.01)
+   #P_NN = plot_all_from_Q(domain,Q_NN,0.01)
    
    # J_LR = compute_expected_return(domain,500,P_LR.getPolicy)
    # print(J_LR)
