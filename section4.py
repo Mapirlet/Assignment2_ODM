@@ -23,7 +23,6 @@ def Fitted_Q_iteration(domain,set_tuples,model,criteria):
     Q_prev2 = 0
     
     while criteria(N,domain.discount_factor,Q_prev,Q_prev2,set_tuples) is True:
-        print(N)
         N = N + 1
         l = len(set_tuples)
         i = []
@@ -197,7 +196,11 @@ class MyPolicy():
     def getPolicy(self,x):
         p_index = np.floor((x[0]+1)/self.resolution)
         s_index = np.floor((x[1]+3)/self.resolution)
-        return self.policy[s_index,p_index]
+        return self.policy[int(s_index),int(p_index)]
+
+def FQI(domain,set_tuples):
+    FQI = Fitted_Q_iteration(domain,set_tuples,Neural_Networks,stopping_criterion1)
+    return FQI
 
 if __name__ == "__main__":
    
